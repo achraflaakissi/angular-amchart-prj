@@ -35,56 +35,51 @@ export class AppComponent implements AfterViewInit {
   polygonSeries: any;
   constructor(private amcharts: AmchartsService) {
   }
-  ngAfterViewInit() {
+   ngAfterViewInit() {
     this.am4coreOperations();
     this.codivCountyStateUsa();
     this.confirmedCasesCountyAndState();
   }
-
+  // ------ CasesCountyAndState Code Start -------
   confirmedCasesCountyAndState(){
     this.amcharts.am4core.useTheme(am4themes_moonrisekingdom);
     this.amcharts.am4core.useTheme(am4themes_animated);
-    var max_county =0; 
-    var min_county =1000000000000;
-    var county_cases =[{'date':'2019-02-01','value':20},{'date':'2019-02-02','value':30},
+    let max_county =0; 
+    let min_county =1000000000000;
+    const county_cases =[{'date':'2019-02-01','value':20},{'date':'2019-02-02','value':30},
       {'date':'2019-02-03','value':40},{'date':'2019-02-04','value':50},
       {'date':'2019-02-05','value':60},{'date':'2019-02-06','value':70},
       {'date':'2019-02-07','value':80},{'date':'2019-02-08','value':90},
       {'date':'2019-02-09','value':100},{'date':'2019-02-10','value':110}];
 
-    var state_cases =[{'date':'2019-02-01','value':250},{'date':'2019-02-02','value':350},
+    const state_cases =[{'date':'2019-02-01','value':250},{'date':'2019-02-02','value':350},
       {'date':'2019-02-03','value':450},{'date':'2019-02-04','value':550},
       {'date':'2019-02-05','value':650},{'date':'2019-02-06','value':750},
       {'date':'2019-02-07','value':850},{'date':'2019-02-08','value':950},
       {'date':'2019-02-09','value':1050},{'date':'2019-02-10','value':1150}];
-    var max_state=0
-    var min_state=1000000000000
+    let max_state=0
+    let min_state=1000000000000
     county_cases.forEach(element =>{
-          
-        if(element.value<min_county){
-            min_county=element.value;
-        }
-
-        if(element.value>max_county){
-            max_county=element.value;
-        }
+      if(element.value<min_county){
+          min_county=element.value;
+      }
+      if(element.value>max_county){
+          max_county=element.value;
+      }
     });
 
     state_cases.forEach(element =>{
-
       if(element.value<min_state){
-              min_state=element.value;
-          }
-          
-          if(element.value>max_state){
-              max_state=element.value;
-          }
-          
+          min_state=element.value;
+      }
+      if(element.value>max_state){
+          max_state=element.value;
+      }
     });
-    var min=min_county
-    var max=max_state
-    var min_break=max_county+(0.1*max_county)
-    var max_break=min_state-(0.1*min_state)
+    let min=min_county
+    let max=max_state
+    let min_break=max_county+(0.1*max_county)
+    let max_break=min_state-(0.1*min_state)
 
       
   // Create chart instance
@@ -92,22 +87,22 @@ export class AppComponent implements AfterViewInit {
   this.chartConfirmedCasesCountyAndState = this.amcharts.am4core.create("confirmedCasesCountyAndState", this.amcharts.am4charts.XYChart);
 
   // Create axes
-  var dateAxis = this.chartConfirmedCasesCountyAndState.xAxes.push(new this.amcharts.am4charts.DateAxis());
-  var valueAxis = this.chartConfirmedCasesCountyAndState.yAxes.push(new this.amcharts.am4charts.ValueAxis());
+  const dateAxis = this.chartConfirmedCasesCountyAndState.xAxes.push(new this.amcharts.am4charts.DateAxis());
+  const valueAxis = this.chartConfirmedCasesCountyAndState.yAxes.push(new this.amcharts.am4charts.ValueAxis());
 
   valueAxis.min = 0;
   valueAxis.max = max+5;
   valueAxis.strictMinMax = true;
   valueAxis.renderer.minGridDistance = 30;
   // Create value axis break
-  var axisBreak = valueAxis.axisBreaks.create();
+  const axisBreak = valueAxis.axisBreaks.create();
   axisBreak.startValue = min_break;
   axisBreak.endValue = max_break;
   // axisBreak.breakSize = 0.2;
   // fixed axis break
-  var d = (axisBreak.endValue - axisBreak.startValue) / (valueAxis.max - valueAxis.min);
+  const d = (axisBreak.endValue - axisBreak.startValue) / (valueAxis.max - valueAxis.min);
   axisBreak.breakSize = 0.05 * (1 - d) / d; // 0.05 means that the break will take 5% of the total value axis height
-  var hoverState = axisBreak.states.create("hover");
+  const hoverState = axisBreak.states.create("hover");
   hoverState.properties.breakSize = 2;
   hoverState.properties.opacity = 0.1;
   hoverState.transitionDuration = 1500;
@@ -131,11 +126,12 @@ export class AppComponent implements AfterViewInit {
       }) 
 
   }
+
   createSeriesForConfirmedCasesCountyAndState(s, name,items) {
-    var series = this.chartConfirmedCasesCountyAndState.series.push(new this.amcharts.am4charts.LineSeries());
+    const series = this.chartConfirmedCasesCountyAndState.series.push(new this.amcharts.am4charts.LineSeries());
     series.dataFields.valueY = "value" + s;
     series.dataFields.dateX = "date";
-    var col="#e60000";
+    let col="#e60000";
     if(s=="valuecounty_cases")
     {
       col =  "#00ff7c";
@@ -143,13 +139,13 @@ export class AppComponent implements AfterViewInit {
     series.stroke =  this.amcharts.am4core.color(col);
     series.name = name;
 
-    var segment = series.segments.template;
+    const segment = series.segments.template;
     segment.interactionsEnabled = true;
 
-    var hoverState = segment.states.create("hover");
+    const hoverState = segment.states.create("hover");
     hoverState.properties.strokeWidth = 3;
 
-    var dimmed = segment.states.create("dimmed");
+    const dimmed = segment.states.create("dimmed");
 
     segment.events.on("over", function(event) {
       this.processOver(event.target.parent.parent.parent);
@@ -159,9 +155,9 @@ export class AppComponent implements AfterViewInit {
       this.processOut(event.target.parent.parent.parent);
     });
 
-    var data = [];
+    const data = [];
     items.forEach(element => {
-      var dataItem = { date: new Date(element.date) };
+      let dataItem = { date: new Date(element.date) };
       dataItem["value" + s] = element.value;
       data.push(dataItem);
     });
@@ -169,6 +165,7 @@ export class AppComponent implements AfterViewInit {
     series.data = data;
     return series;
   }
+
   processOver(hoveredSeries) {
     hoveredSeries.toFront();
 
@@ -185,6 +182,7 @@ export class AppComponent implements AfterViewInit {
       }
     });
   }
+
   processOut(hoveredSeries) {
     this.chartConfirmedCasesCountyAndState.series.each(function(series) {
       series['segments'].each(function(segment) {
@@ -193,13 +191,15 @@ export class AppComponent implements AfterViewInit {
       series.bulletsContainer.setState("default");
     });
   }
+  // ******* End Code CasesCountyAndState ********
+  // ------ CountyStateUsa Code Start -------
   codivCountyStateUsa(){
     try{
       this.amcharts.am4core.useTheme(am4themes_moonrisekingdom);
       this.amcharts.am4core.useTheme(am4themes_animated);
-      var max =0; 
-      var min =1000000000000; 
-      var dataItems = [
+      let max =0; 
+      let min =1000000000000; 
+      const dataItems = [
         {
             category: 'County',
             first: 13,
@@ -235,26 +235,26 @@ export class AppComponent implements AfterViewInit {
       this.chartCovidCountyStateUsa.legend.paddingBottom = 20
       this.chartCovidCountyStateUsa.legend.labels.template.maxWidth = 95
       
-      var xAxis = this.chartCovidCountyStateUsa.xAxes.push(new this.amcharts.am4charts.CategoryAxis())
+      const xAxis = this.chartCovidCountyStateUsa.xAxes.push(new this.amcharts.am4charts.CategoryAxis())
       xAxis.dataFields.category = 'category'
       xAxis.renderer.cellStartLocation = 0.1
       xAxis.renderer.cellEndLocation = 0.9
       xAxis.renderer.grid.template.location = 0;
       
-      var yAxis = this.chartCovidCountyStateUsa.yAxes.push(new this.amcharts.am4charts.ValueAxis());
+      const yAxis = this.chartCovidCountyStateUsa.yAxes.push(new this.amcharts.am4charts.ValueAxis());
       yAxis.min = 0;
       yAxis.max = max+5;
       yAxis.strictMinMax = true;
       yAxis.renderer.minGridDistance = 30;
       // Create value axis break
-      var axisBreak = yAxis.axisBreaks.create();
+      const axisBreak = yAxis.axisBreaks.create();
       axisBreak.startValue = min+(0.1*min);
       axisBreak.endValue = max-100;
       // axisBreak.breakSize = 0.2;
       // fixed axis break
-      var d = (axisBreak.endValue - axisBreak.startValue) / (yAxis.max - yAxis.min);
+      const d = (axisBreak.endValue - axisBreak.startValue) / (yAxis.max - yAxis.min);
       axisBreak.breakSize = 0.05 * (1 - d) / d; // 0.05 means that the break will take 5% of the total value axis height
-      var hoverState = axisBreak.states.create("hover");
+      const hoverState = axisBreak.states.create("hover");
       hoverState.properties.breakSize = 2;
       hoverState.properties.opacity = 0.1;
       hoverState.transitionDuration = 1500;
@@ -275,7 +275,7 @@ export class AppComponent implements AfterViewInit {
   }
 
   createSeriesForCovidCountyStateUsa(value, name, xAxis) {
-    var series = this.chartCovidCountyStateUsa.series.push(new this.amcharts.am4charts.ColumnSeries())
+    const series = this.chartCovidCountyStateUsa.series.push(new this.amcharts.am4charts.ColumnSeries())
     series.dataFields.valueY = value
     series.dataFields.categoryX = 'category'
     series.name = name
@@ -283,7 +283,7 @@ export class AppComponent implements AfterViewInit {
     series.events.on("hidden", this.arrangeColumnsForCovidCountyStateUsa(xAxis));
     series.events.on("shown", this.arrangeColumnsForCovidCountyStateUsa(xAxis));
     series.columns.template.tooltipText = "[bold][/]\n[font-size:14px]{valueY}";
-    var bullet = series.bullets.push(new this.amcharts.am4charts.LabelBullet())
+    const bullet = series.bullets.push(new this.amcharts.am4charts.LabelBullet())
     bullet.interactionsEnabled = false
     bullet.dy = 30;
     bullet.label.text = '{valueY}'
@@ -294,17 +294,17 @@ export class AppComponent implements AfterViewInit {
 
   arrangeColumnsForCovidCountyStateUsa(xAxis) {
   
-      var series = this.chartCovidCountyStateUsa.series.getIndex(0);
+    const series = this.chartCovidCountyStateUsa.series.getIndex(0);
 
-      var w = 1 - xAxis.renderer.cellStartLocation - (1 - xAxis.renderer.cellEndLocation);
+    const w = 1 - xAxis.renderer.cellStartLocation - (1 - xAxis.renderer.cellEndLocation);
       if (series.dataItems.length > 1) {
-          var x0 = xAxis.getX(series.dataItems.getIndex(0), "categoryX");
-          var x1 = xAxis.getX(series.dataItems.getIndex(1), "categoryX");
-          var delta = ((x1 - x0) / this.chartCovidCountyStateUsa.series.length) * w;
+        const x0 = xAxis.getX(series.dataItems.getIndex(0), "categoryX");
+        const x1 = xAxis.getX(series.dataItems.getIndex(1), "categoryX");
+        const delta = ((x1 - x0) / this.chartCovidCountyStateUsa.series.length) * w;
           if (this.amcharts.am4core.isNumber(delta)) {
-              var middle = this.chartCovidCountyStateUsa.series.length / 2;
+            const middle = this.chartCovidCountyStateUsa.series.length / 2;
 
-              var newIndex = 0;
+            let newIndex = 0;
               this.chartCovidCountyStateUsa.series.each(function(series) {
                   if (!series.isHidden && !series.isHiding) {
                       series.dummyData = newIndex;
@@ -314,14 +314,14 @@ export class AppComponent implements AfterViewInit {
                       series.dummyData = this.chartCovidCountyStateUsa.series.indexOf(series);
                   }
               })
-              var visibleCount = newIndex;
-              var newMiddle = visibleCount / 2;
+              const visibleCount = newIndex;
+              const newMiddle = visibleCount / 2;
 
               this.chartCovidCountyStateUsa.series.each(function(series) {
-                  var trueIndex = this.chartCovidCountyStateUsa.series.indexOf(series);
-                  var newIndex = series.dummyData;
+                  let trueIndex = this.chartCovidCountyStateUsa.series.indexOf(series);
+                  let newIndex = series.dummyData;
 
-                  var dx = (newIndex - trueIndex + middle - newMiddle) * delta
+                  const dx = (newIndex - trueIndex + middle - newMiddle) * delta
 
                   series.animate({ property: "dx", to: dx }, series.interpolationDuration, series.interpolationEasing);
                   series.bulletsContainer.animate({ property: "dx", to: dx }, series.interpolationDuration, series.interpolationEasing);
@@ -329,9 +329,10 @@ export class AppComponent implements AfterViewInit {
           }
       }
   }
-
-
+  // ******* End Code CountyStateUsa ********
+  // ------ CodivMap Code Start -------
   am4coreOperations() {
+    this.regionalSeries={};
       // Themes begin
       this.amcharts.am4core.useTheme(am4themes_animated);
       // Themes end
@@ -367,33 +368,28 @@ export class AppComponent implements AfterViewInit {
       this.polygonSeries = this.chart.series.push(new this.amcharts.am4maps.MapPolygonSeries());
       this.polygonSeries.useGeodata = true;
       this.polygonSeries.calculateVisualCenter = true;
-
-      // Configure series
-      var polygonTemplate = this.polygonSeries.mapPolygons.template;
-      polygonTemplate.tooltipText = "{name}";
-      polygonTemplate.fill = this.chart.colors.getIndex(0);
-
       const that = this;
       this.chart.events.on("ready", that.loadStores());
       
       return
   }
 
-  changeDisplay(type, i) {
+  changeDisplay(type) {
       this.nameOfColumnUsed = type;
-      // document.getElementById('btn-'+position).removeAttribute("class");
-      // document.getElementById('btn-'+i).setAttribute("class", "active");
-      const position = i;
       this.configArrayNames.count = this.nameOfColumnUsed;
       this.am4coreOperations();
   }
 
-  // Creates a series
   createSeries(heatfield) {
-      var series = this.chart.series.push(new this.amcharts.am4maps.MapImageSeries());
+
+      const polygonTemplate = this.polygonSeries.mapPolygons.template;
+      polygonTemplate.tooltipText = "{name}";
+      polygonTemplate.fill = this.amcharts.am4core.color("#67b7dc");
+
+      const series = this.chart.series.push(new this.amcharts.am4maps.MapImageSeries());
       series.dataFields.value = heatfield;
 
-      var template = series.mapImages.template;
+      const template = series.mapImages.template;
       template.verticalCenter = "middle";
       template.horizontalCenter = "middle";
       template.propertyFields.latitude = "lat";
@@ -410,21 +406,21 @@ export class AppComponent implements AfterViewInit {
 
       //template.tooltipText = "{name}:\n[bold]{stores} "+nameOfColumnUsed+"[/]";
 
-      var circle: any = template.createChild(this.amcharts.am4core.Circle);
+      const circle: any = template.createChild(this.amcharts.am4core.Circle);
       circle.radius = 10;
       circle.fillOpacity = 0.7;
       circle.verticalCenter = "middle";
       circle.horizontalCenter = "middle";
       circle.nonScaling = true;
 
-      var label: any = template.createChild(this.amcharts.am4core.Label);
+      const label: any = template.createChild(this.amcharts.am4core.Label);
       label.text = "{stores}";
       label.fill = this.amcharts.am4core.color("#fff");
       label.verticalCenter = "middle";
       label.horizontalCenter = "middle";
       label.nonScaling = true;
 
-      var heat = series.heatRules.push({
+      const heat = series.heatRules.push({
           target: circle,
           property: "radius",
           min: 10,
@@ -435,7 +431,7 @@ export class AppComponent implements AfterViewInit {
       series.mapImages.template.events.on("hit", (ev) => {
 
           // Determine what we've clicked on
-          var data: any = ev.target.dataItem.dataContext;
+          const data: any = ev.target.dataItem.dataContext;
 
           // No id? Individual store - nothing to drill down to further
           if (!data.target) {
@@ -455,7 +451,7 @@ export class AppComponent implements AfterViewInit {
 
           // Control zoom
           if (data.type == "state") {
-              var statePolygon = this.polygonSeries.getPolygonById("US-" + data.state);
+            const statePolygon = this.polygonSeries.getPolygonById("US-" + data.state);
               this.chart.zoomToMapObject(statePolygon);
           }
           else if (data.type == "city") {
@@ -470,15 +466,16 @@ export class AppComponent implements AfterViewInit {
           this.currentSeries = this.regionalSeries[data.target].series;
           this.currentSeries.show();
       });
+
       return series;
   }
- // Loads store data from array
+
   loadStores() {
-    var dt = [{ "stateId": "01", "stateName": "Alabama", "stateAbr": "AL", "stateLat": 32.7396323, "stateLon": -86.8434593, "deathLastDay": 481, "confirmedLastDay": 40170 }, { "stateId": "02", "stateName": "Alaska", "stateAbr": "AK", "stateLat": 63.347356, "stateLon": -152.8397334, "deathLastDay": 287, "confirmedLastDay": 26043 }, { "stateId": "04", "stateName": "Arizona", "stateAbr": "AZ", "stateLat": 34.2039355, "stateLon": -111.6063565, "deathLastDay": 263, "confirmedLastDay": 4567 }, { "stateId": "05", "stateName": "Arkansas", "stateAbr": "AR", "stateLat": 34.8955256, "stateLon": -92.4446262, "deathLastDay": 295, "confirmedLastDay": 47907 }, { "stateId": "06", "stateName": "California", "stateAbr": "CA", "stateLat": 37.1551773, "stateLon": -119.5434183, "deathLastDay": 55, "confirmedLastDay": 9114 }, { "stateId": "08", "stateName": "Colorado", "stateAbr": "CO", "stateLat": 38.9938482, "stateLon": -105.5083165, "deathLastDay": 407, "confirmedLastDay": 49922 }, { "stateId": "09", "stateName": "Connecticut", "stateAbr": "CT", "stateLat": 41.5798637, "stateLon": -72.7466572, "deathLastDay": 386, "confirmedLastDay": 31934 }, { "stateId": "10", "stateName": "Delaware", "stateAbr": "DE", "stateLat": 38.9985661, "stateLon": -75.441644, "deathLastDay": 989, "confirmedLastDay": 31646 }, { "stateId": "11", "stateName": "District of Columbia", "stateAbr": "DC", "stateLat": 38.9042474, "stateLon": -77.0165167, "deathLastDay": 778, "confirmedLastDay": 32165 }, { "stateId": "12", "stateName": "Florida", "stateAbr": "FL", "stateLat": 28.4574302, "stateLon": -82.4091477, "deathLastDay": 460, "confirmedLastDay": 23542 }, { "stateId": "13", "stateName": "Georgia", "stateAbr": "GA", "stateLat": 32.6295789, "stateLon": -83.4235109, "deathLastDay": 862, "confirmedLastDay": 16302 }, { "stateId": "15", "stateName": "Hawaii", "stateAbr": "HI", "stateLat": 19.5977643, "stateLon": -155.5024434, "deathLastDay": 519, "confirmedLastDay": 4132 }, { "stateId": "16", "stateName": "Idaho", "stateAbr": "ID", "stateLat": 44.3484222, "stateLon": -114.5588538, "deathLastDay": 819, "confirmedLastDay": 41534 }, { "stateId": "17", "stateName": "Illinois", "stateAbr": "IL", "stateLat": 40.1028754, "stateLon": -89.1526108, "deathLastDay": 875, "confirmedLastDay": 13609 }, { "stateId": "18", "stateName": "Indiana", "stateAbr": "IN", "stateLat": 39.9013136, "stateLon": -86.2919129, "deathLastDay": 279, "confirmedLastDay": 45660 }, { "stateId": "19", "stateName": "Iowa", "stateAbr": "IA", "stateLat": 42.0700243, "stateLon": -93.4933473, "deathLastDay": 637, "confirmedLastDay": 23979 }, { "stateId": "20", "stateName": "Kansas", "stateAbr": "KS", "stateLat": 38.4985464, "stateLon": -98.3834298, "deathLastDay": 189, "confirmedLastDay": 48042 }, { "stateId": "21", "stateName": "Kentucky", "stateAbr": "KY", "stateLat": 37.5336844, "stateLon": -85.2929801, "deathLastDay": 615, "confirmedLastDay": 42929 }, { "stateId": "22", "stateName": "Louisiana", "stateAbr": "LA", "stateLat": 30.8634368, "stateLon": -91.7987173, "deathLastDay": 723, "confirmedLastDay": 44588 }, { "stateId": "23", "stateName": "Maine", "stateAbr": "ME", "stateLat": 45.4092843, "stateLon": -68.666616, "deathLastDay": 436, "confirmedLastDay": 5744 }, { "stateId": "24", "stateName": "Maryland", "stateAbr": "MD", "stateLat": 38.9466584, "stateLon": -76.6744939, "deathLastDay": 279, "confirmedLastDay": 19186 }, { "stateId": "25", "stateName": "Massachusetts", "stateAbr": "MA", "stateLat": 42.1565196, "stateLon": -71.4895915, "deathLastDay": 217, "confirmedLastDay": 49685 }, { "stateId": "26", "stateName": "Michigan", "stateAbr": "MI", "stateLat": 44.8441768, "stateLon": -85.6604907, "deathLastDay": 466, "confirmedLastDay": 5968 }, { "stateId": "27", "stateName": "Minnesota", "stateAbr": "MN", "stateLat": 46.3159573, "stateLon": -94.1996043, "deathLastDay": 902, "confirmedLastDay": 35479 }, { "stateId": "28", "stateName": "Mississippi", "stateAbr": "MS", "stateLat": 32.6864714, "stateLon": -89.6561377, "deathLastDay": 114, "confirmedLastDay": 48102 }, { "stateId": "29", "stateName": "Missouri", "stateAbr": "MO", "stateLat": 38.35075, "stateLon": -92.4567826, "deathLastDay": 837, "confirmedLastDay": 21015 }, { "stateId": "30", "stateName": "Montana", "stateAbr": "MT", "stateLat": 47.0511771, "stateLon": -109.6348174, "deathLastDay": 650, "confirmedLastDay": 43221 }, { "stateId": "31", "stateName": "Nebraska", "stateAbr": "NE", "stateLat": 41.5433053, "stateLon": -99.8118646, "deathLastDay": 61, "confirmedLastDay": 12362 }, { "stateId": "32", "stateName": "Nevada", "stateAbr": "NV", "stateLat": 39.3310928, "stateLon": -116.6151469, "deathLastDay": 118, "confirmedLastDay": 2440 }, { "stateId": "33", "stateName": "New Hampshire", "stateAbr": "NH", "stateLat": 43.6726907, "stateLon": -71.5843145, "deathLastDay": 508, "confirmedLastDay": 43420 }, { "stateId": "34", "stateName": "New Jersey", "stateAbr": "NJ", "stateLat": 40.1072744, "stateLon": -74.6652012, "deathLastDay": 419, "confirmedLastDay": 1790 }, { "stateId": "35", "stateName": "New Mexico", "stateAbr": "NM", "stateLat": 34.4346843, "stateLon": -106.1316181, "deathLastDay": 755, "confirmedLastDay": 46129 }, { "stateId": "36", "stateName": "New York", "stateAbr": "NY", "stateLat": 42.9133974, "stateLon": -75.5962723, "deathLastDay": 443, "confirmedLastDay": 13706 }, { "stateId": "37", "stateName": "North Carolina", "stateAbr": "NC", "stateLat": 35.53971, "stateLon": -79.1308636, "deathLastDay": 935, "confirmedLastDay": 34903 }, { "stateId": "38", "stateName": "North Dakota", "stateAbr": "ND", "stateLat": 47.442174, "stateLon": -100.4608258, "deathLastDay": 146, "confirmedLastDay": 9667 }, { "stateId": "39", "stateName": "Ohio", "stateAbr": "OH", "stateLat": 40.4149297, "stateLon": -82.7119975, "deathLastDay": 631, "confirmedLastDay": 37423 }, { "stateId": "40", "stateName": "Oklahoma", "stateAbr": "OK", "stateLat": 35.5900512, "stateLon": -97.4868149, "deathLastDay": 389, "confirmedLastDay": 2842 }, { "stateId": "41", "stateName": "Oregon", "stateAbr": "OR", "stateLat": 43.9717125, "stateLon": -120.6229578, "deathLastDay": 885, "confirmedLastDay": 4715 }, { "stateId": "42", "stateName": "Pennsylvania", "stateAbr": "PA", "stateLat": 40.9046013, "stateLon": -77.8275298, "deathLastDay": 744, "confirmedLastDay": 14264 }, { "stateId": "44", "stateName": "Rhode Island", "stateAbr": "RI", "stateLat": 41.5974187, "stateLon": -71.5272723, "deathLastDay": 990, "confirmedLastDay": 1109 }, { "stateId": "45", "stateName": "South Carolina", "stateAbr": "SC", "stateLat": 33.8741776, "stateLon": -80.8542639, "deathLastDay": 667, "confirmedLastDay": 45661 }, { "stateId": "46", "stateName": "South Dakota", "stateAbr": "SD", "stateLat": 44.4467957, "stateLon": -100.2381762, "deathLastDay": 610, "confirmedLastDay": 49168 }, { "stateId": "47", "stateName": "Tennessee", "stateAbr": "TN", "stateLat": 35.860803, "stateLon": -86.3499896, "deathLastDay": 773, "confirmedLastDay": 41852 }, { "stateId": "48", "stateName": "Texas", "stateAbr": "TX", "stateLat": 31.4347032, "stateLon": -99.2818238, "deathLastDay": 685, "confirmedLastDay": 47964 }, { "stateId": "49", "stateName": "Utah", "stateAbr": "UT", "stateLat": 39.3349925, "stateLon": -111.6563326, "deathLastDay": 228, "confirmedLastDay": 28564 }, { "stateId": "50", "stateName": "Vermont", "stateAbr": "VT", "stateLat": 44.0685773, "stateLon": -72.6691839, "deathLastDay": 16, "confirmedLastDay": 23205 }, { "stateId": "51", "stateName": "Virginia", "stateAbr": "VA", "stateLat": 37.5222512, "stateLon": -78.6681938, "deathLastDay": 452, "confirmedLastDay": 40850 }, { "stateId": "53", "stateName": "Washington", "stateAbr": "WA", "stateLat": 47.4073238, "stateLon": -120.5757999, "deathLastDay": 44, "confirmedLastDay": 43121 }, { "stateId": "54", "stateName": "West Virginia", "stateAbr": "WV", "stateLat": 38.6472854, "stateLon": -80.6183274, "deathLastDay": 935, "confirmedLastDay": 30436 }, { "stateId": "55", "stateName": "Wisconsin", "stateAbr": "WI", "stateLat": 44.6309071, "stateLon": -89.7093916, "deathLastDay": 245, "confirmedLastDay": 11259 }, { "stateId": "56", "stateName": "Wyoming", "stateAbr": "WY", "stateLat": 42.9896591, "stateLon": -107.5443922, "deathLastDay": 51, "confirmedLastDay": 13348 }, { "stateId": "60", "stateName": "American Samoa", "stateAbr": "AS", "stateLat": -14.267159, "stateLon": -170.6682674, "deathLastDay": 135, "confirmedLastDay": 36742 }, { "stateId": "66", "stateName": "Guam", "stateAbr": "GU", "stateLat": 13.4417451, "stateLon": 144.7719021, "deathLastDay": 168, "confirmedLastDay": 5417 }, { "stateId": "69", "stateName": "Commonwealth of the Northern Mariana Islands", "stateAbr": "MP", "stateLat": 14.9367835, "stateLon": 145.601021, "deathLastDay": 939, "confirmedLastDay": 12279 }, { "stateId": "72", "stateName": "Puerto Rico", "stateAbr": "PR", "stateLat": 18.217648, "stateLon": -66.4107992, "deathLastDay": 286, "confirmedLastDay": 20715 }, { "stateId": "78", "stateName": "United States Virgin Islands", "stateAbr": "VI", "stateLat": 18.326748, "stateLon": -64.9712508, "deathLastDay": 212, "confirmedLastDay": 25884 }];
+    const dt = [{ "stateId": "01", "stateName": "Alabama", "stateAbr": "AL", "stateLat": 32.7396323, "stateLon": -86.8434593, "deathLastDay": 481, "confirmedLastDay": 40170 }, { "stateId": "02", "stateName": "Alaska", "stateAbr": "AK", "stateLat": 63.347356, "stateLon": -152.8397334, "deathLastDay": 287, "confirmedLastDay": 26043 }, { "stateId": "04", "stateName": "Arizona", "stateAbr": "AZ", "stateLat": 34.2039355, "stateLon": -111.6063565, "deathLastDay": 263, "confirmedLastDay": 4567 }, { "stateId": "05", "stateName": "Arkansas", "stateAbr": "AR", "stateLat": 34.8955256, "stateLon": -92.4446262, "deathLastDay": 295, "confirmedLastDay": 47907 }, { "stateId": "06", "stateName": "California", "stateAbr": "CA", "stateLat": 37.1551773, "stateLon": -119.5434183, "deathLastDay": 55, "confirmedLastDay": 9114 }, { "stateId": "08", "stateName": "Colorado", "stateAbr": "CO", "stateLat": 38.9938482, "stateLon": -105.5083165, "deathLastDay": 407, "confirmedLastDay": 49922 }, { "stateId": "09", "stateName": "Connecticut", "stateAbr": "CT", "stateLat": 41.5798637, "stateLon": -72.7466572, "deathLastDay": 386, "confirmedLastDay": 31934 }, { "stateId": "10", "stateName": "Delaware", "stateAbr": "DE", "stateLat": 38.9985661, "stateLon": -75.441644, "deathLastDay": 989, "confirmedLastDay": 31646 }, { "stateId": "11", "stateName": "District of Columbia", "stateAbr": "DC", "stateLat": 38.9042474, "stateLon": -77.0165167, "deathLastDay": 778, "confirmedLastDay": 32165 }, { "stateId": "12", "stateName": "Florida", "stateAbr": "FL", "stateLat": 28.4574302, "stateLon": -82.4091477, "deathLastDay": 460, "confirmedLastDay": 23542 }, { "stateId": "13", "stateName": "Georgia", "stateAbr": "GA", "stateLat": 32.6295789, "stateLon": -83.4235109, "deathLastDay": 862, "confirmedLastDay": 16302 }, { "stateId": "15", "stateName": "Hawaii", "stateAbr": "HI", "stateLat": 19.5977643, "stateLon": -155.5024434, "deathLastDay": 519, "confirmedLastDay": 4132 }, { "stateId": "16", "stateName": "Idaho", "stateAbr": "ID", "stateLat": 44.3484222, "stateLon": -114.5588538, "deathLastDay": 819, "confirmedLastDay": 41534 }, { "stateId": "17", "stateName": "Illinois", "stateAbr": "IL", "stateLat": 40.1028754, "stateLon": -89.1526108, "deathLastDay": 875, "confirmedLastDay": 13609 }, { "stateId": "18", "stateName": "Indiana", "stateAbr": "IN", "stateLat": 39.9013136, "stateLon": -86.2919129, "deathLastDay": 279, "confirmedLastDay": 45660 }, { "stateId": "19", "stateName": "Iowa", "stateAbr": "IA", "stateLat": 42.0700243, "stateLon": -93.4933473, "deathLastDay": 637, "confirmedLastDay": 23979 }, { "stateId": "20", "stateName": "Kansas", "stateAbr": "KS", "stateLat": 38.4985464, "stateLon": -98.3834298, "deathLastDay": 189, "confirmedLastDay": 48042 }, { "stateId": "21", "stateName": "Kentucky", "stateAbr": "KY", "stateLat": 37.5336844, "stateLon": -85.2929801, "deathLastDay": 615, "confirmedLastDay": 42929 }, { "stateId": "22", "stateName": "Louisiana", "stateAbr": "LA", "stateLat": 30.8634368, "stateLon": -91.7987173, "deathLastDay": 723, "confirmedLastDay": 44588 }, { "stateId": "23", "stateName": "Maine", "stateAbr": "ME", "stateLat": 45.4092843, "stateLon": -68.666616, "deathLastDay": 436, "confirmedLastDay": 5744 }, { "stateId": "24", "stateName": "Maryland", "stateAbr": "MD", "stateLat": 38.9466584, "stateLon": -76.6744939, "deathLastDay": 279, "confirmedLastDay": 19186 }, { "stateId": "25", "stateName": "Massachusetts", "stateAbr": "MA", "stateLat": 42.1565196, "stateLon": -71.4895915, "deathLastDay": 217, "confirmedLastDay": 49685 }, { "stateId": "26", "stateName": "Michigan", "stateAbr": "MI", "stateLat": 44.8441768, "stateLon": -85.6604907, "deathLastDay": 466, "confirmedLastDay": 5968 }, { "stateId": "27", "stateName": "Minnesota", "stateAbr": "MN", "stateLat": 46.3159573, "stateLon": -94.1996043, "deathLastDay": 902, "confirmedLastDay": 35479 }, { "stateId": "28", "stateName": "Mississippi", "stateAbr": "MS", "stateLat": 32.6864714, "stateLon": -89.6561377, "deathLastDay": 114, "confirmedLastDay": 48102 }, { "stateId": "29", "stateName": "Missouri", "stateAbr": "MO", "stateLat": 38.35075, "stateLon": -92.4567826, "deathLastDay": 837, "confirmedLastDay": 21015 }, { "stateId": "30", "stateName": "Montana", "stateAbr": "MT", "stateLat": 47.0511771, "stateLon": -109.6348174, "deathLastDay": 650, "confirmedLastDay": 43221 }, { "stateId": "31", "stateName": "Nebraska", "stateAbr": "NE", "stateLat": 41.5433053, "stateLon": -99.8118646, "deathLastDay": 61, "confirmedLastDay": 12362 }, { "stateId": "32", "stateName": "Nevada", "stateAbr": "NV", "stateLat": 39.3310928, "stateLon": -116.6151469, "deathLastDay": 118, "confirmedLastDay": 2440 }, { "stateId": "33", "stateName": "New Hampshire", "stateAbr": "NH", "stateLat": 43.6726907, "stateLon": -71.5843145, "deathLastDay": 508, "confirmedLastDay": 43420 }, { "stateId": "34", "stateName": "New Jersey", "stateAbr": "NJ", "stateLat": 40.1072744, "stateLon": -74.6652012, "deathLastDay": 419, "confirmedLastDay": 1790 }, { "stateId": "35", "stateName": "New Mexico", "stateAbr": "NM", "stateLat": 34.4346843, "stateLon": -106.1316181, "deathLastDay": 755, "confirmedLastDay": 46129 }, { "stateId": "36", "stateName": "New York", "stateAbr": "NY", "stateLat": 42.9133974, "stateLon": -75.5962723, "deathLastDay": 443, "confirmedLastDay": 13706 }, { "stateId": "37", "stateName": "North Carolina", "stateAbr": "NC", "stateLat": 35.53971, "stateLon": -79.1308636, "deathLastDay": 935, "confirmedLastDay": 34903 }, { "stateId": "38", "stateName": "North Dakota", "stateAbr": "ND", "stateLat": 47.442174, "stateLon": -100.4608258, "deathLastDay": 146, "confirmedLastDay": 9667 }, { "stateId": "39", "stateName": "Ohio", "stateAbr": "OH", "stateLat": 40.4149297, "stateLon": -82.7119975, "deathLastDay": 631, "confirmedLastDay": 37423 }, { "stateId": "40", "stateName": "Oklahoma", "stateAbr": "OK", "stateLat": 35.5900512, "stateLon": -97.4868149, "deathLastDay": 389, "confirmedLastDay": 2842 }, { "stateId": "41", "stateName": "Oregon", "stateAbr": "OR", "stateLat": 43.9717125, "stateLon": -120.6229578, "deathLastDay": 885, "confirmedLastDay": 4715 }, { "stateId": "42", "stateName": "Pennsylvania", "stateAbr": "PA", "stateLat": 40.9046013, "stateLon": -77.8275298, "deathLastDay": 744, "confirmedLastDay": 14264 }, { "stateId": "44", "stateName": "Rhode Island", "stateAbr": "RI", "stateLat": 41.5974187, "stateLon": -71.5272723, "deathLastDay": 990, "confirmedLastDay": 1109 }, { "stateId": "45", "stateName": "South Carolina", "stateAbr": "SC", "stateLat": 33.8741776, "stateLon": -80.8542639, "deathLastDay": 667, "confirmedLastDay": 45661 }, { "stateId": "46", "stateName": "South Dakota", "stateAbr": "SD", "stateLat": 44.4467957, "stateLon": -100.2381762, "deathLastDay": 610, "confirmedLastDay": 49168 }, { "stateId": "47", "stateName": "Tennessee", "stateAbr": "TN", "stateLat": 35.860803, "stateLon": -86.3499896, "deathLastDay": 773, "confirmedLastDay": 41852 }, { "stateId": "48", "stateName": "Texas", "stateAbr": "TX", "stateLat": 31.4347032, "stateLon": -99.2818238, "deathLastDay": 685, "confirmedLastDay": 47964 }, { "stateId": "49", "stateName": "Utah", "stateAbr": "UT", "stateLat": 39.3349925, "stateLon": -111.6563326, "deathLastDay": 228, "confirmedLastDay": 28564 }, { "stateId": "50", "stateName": "Vermont", "stateAbr": "VT", "stateLat": 44.0685773, "stateLon": -72.6691839, "deathLastDay": 16, "confirmedLastDay": 23205 }, { "stateId": "51", "stateName": "Virginia", "stateAbr": "VA", "stateLat": 37.5222512, "stateLon": -78.6681938, "deathLastDay": 452, "confirmedLastDay": 40850 }, { "stateId": "53", "stateName": "Washington", "stateAbr": "WA", "stateLat": 47.4073238, "stateLon": -120.5757999, "deathLastDay": 44, "confirmedLastDay": 43121 }, { "stateId": "54", "stateName": "West Virginia", "stateAbr": "WV", "stateLat": 38.6472854, "stateLon": -80.6183274, "deathLastDay": 935, "confirmedLastDay": 30436 }, { "stateId": "55", "stateName": "Wisconsin", "stateAbr": "WI", "stateLat": 44.6309071, "stateLon": -89.7093916, "deathLastDay": 245, "confirmedLastDay": 11259 }, { "stateId": "56", "stateName": "Wyoming", "stateAbr": "WY", "stateLat": 42.9896591, "stateLon": -107.5443922, "deathLastDay": 51, "confirmedLastDay": 13348 }, { "stateId": "60", "stateName": "American Samoa", "stateAbr": "AS", "stateLat": -14.267159, "stateLon": -170.6682674, "deathLastDay": 135, "confirmedLastDay": 36742 }, { "stateId": "66", "stateName": "Guam", "stateAbr": "GU", "stateLat": 13.4417451, "stateLon": 144.7719021, "deathLastDay": 168, "confirmedLastDay": 5417 }, { "stateId": "69", "stateName": "Commonwealth of the Northern Mariana Islands", "stateAbr": "MP", "stateLat": 14.9367835, "stateLon": 145.601021, "deathLastDay": 939, "confirmedLastDay": 12279 }, { "stateId": "72", "stateName": "Puerto Rico", "stateAbr": "PR", "stateLat": 18.217648, "stateLon": -66.4107992, "deathLastDay": 286, "confirmedLastDay": 20715 }, { "stateId": "78", "stateName": "United States Virgin Islands", "stateAbr": "VI", "stateLat": 18.326748, "stateLon": -64.9712508, "deathLastDay": 212, "confirmedLastDay": 25884 }];
     this.setupStores(dt);
   }
   
-  setupStores(data) {
+  setupStores(data) {  
     // Init country-level series
     this.regionalSeries.US = {
       markerData: [],
@@ -501,7 +498,7 @@ export class AppComponent implements AfterViewInit {
 
       // Process state-level data
       if (that.regionalSeries[store['state']] == undefined) {
-        var statePolygon = that.polygonSeries.getPolygonById("US-" + store['state']);
+        const statePolygon = that.polygonSeries.getPolygonById("US-" + store['state']);
         if (statePolygon) {
           // Add state data
           that.regionalSeries[store['state']] = {
@@ -534,7 +531,6 @@ export class AppComponent implements AfterViewInit {
             };
             that.regionalSeries.US.markerData.push(that.regionalSeries[store['state']]);
           }else{
-            console.log('State not found ==>');
             // State not found
             return;
           }
@@ -582,4 +578,5 @@ export class AppComponent implements AfterViewInit {
     const itemFinded = this.anotherData.find(element=> element.state==key);
     return itemFinded;
   }
+  // ******* End Code CodivMap ********
 }
