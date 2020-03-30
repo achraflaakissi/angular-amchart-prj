@@ -42,86 +42,96 @@ export class AppComponent implements AfterViewInit {
   }
   // ------ CasesCountyAndState Code Start -------
   confirmedCasesCountyAndState(){
-    this.amcharts.am4core.useTheme(am4themes_moonrisekingdom);
-    this.amcharts.am4core.useTheme(am4themes_animated);
-    let max_county =0; 
-    let min_county =1000000000000;
-    const county_cases =[{'date':'2019-02-01','value':20},{'date':'2019-02-02','value':30},
-      {'date':'2019-02-03','value':40},{'date':'2019-02-04','value':50},
-      {'date':'2019-02-05','value':60},{'date':'2019-02-06','value':70},
-      {'date':'2019-02-07','value':80},{'date':'2019-02-08','value':90},
-      {'date':'2019-02-09','value':100},{'date':'2019-02-10','value':110}];
-
-    const state_cases =[{'date':'2019-02-01','value':250},{'date':'2019-02-02','value':350},
-      {'date':'2019-02-03','value':450},{'date':'2019-02-04','value':550},
-      {'date':'2019-02-05','value':650},{'date':'2019-02-06','value':750},
-      {'date':'2019-02-07','value':850},{'date':'2019-02-08','value':950},
-      {'date':'2019-02-09','value':1050},{'date':'2019-02-10','value':1150}];
-    let max_state=0
-    let min_state=1000000000000
-    county_cases.forEach(element =>{
-      if(element.value<min_county){
-          min_county=element.value;
+    const state_cases =[];
+    const county_cases = [];
+    this.amcharts.getCovid19InfosByCountyId("01029").subscribe(data=>{
+      console.log('data ==>',data);
+      const currentDate = new Date();
+      let culDate;
+      for(let i=0;i<data['stateData'].confirmed.length;i++){
+        culDate = new Date();
+        culDate.setDate(currentDate.getDate() -(10-(i+1)));
+        state_cases.push({'date': culDate,'value':data['stateData'].confirmed[i]});
       }
-      if(element.value>max_county){
-          max_county=element.value;
+      for(let i=0;i<data['confirmed'].length;i++){
+        culDate = new Date();
+        culDate.setDate(currentDate.getDate() -(10-(i+1)));
+        county_cases.push({'date':culDate,'value':data['confirmed'][i]});
       }
-    });
-
-    state_cases.forEach(element =>{
-      if(element.value<min_state){
-          min_state=element.value;
-      }
-      if(element.value>max_state){
-          max_state=element.value;
-      }
-    });
-    let min=min_county
-    let max=max_state
-    let min_break=max_county+(0.1*max_county)
-    let max_break=min_state-(0.1*min_state)
-
+      console.log("state_cases ==>",state_cases);
+      console.log("county_cases ==>",county_cases);
+    
+      this.amcharts.am4core.useTheme(am4themes_moonrisekingdom);
+      this.amcharts.am4core.useTheme(am4themes_animated);
+      let max_county =0; 
+      let min_county =1000000000000;
+  
       
-  // Create chart instance
-
-  this.chartConfirmedCasesCountyAndState = this.amcharts.am4core.create("confirmedCasesCountyAndState", this.amcharts.am4charts.XYChart);
-
-  // Create axes
-  const dateAxis = this.chartConfirmedCasesCountyAndState.xAxes.push(new this.amcharts.am4charts.DateAxis());
-  const valueAxis = this.chartConfirmedCasesCountyAndState.yAxes.push(new this.amcharts.am4charts.ValueAxis());
-
-  valueAxis.min = 0;
-  valueAxis.max = max+5;
-  valueAxis.strictMinMax = true;
-  valueAxis.renderer.minGridDistance = 30;
-  // Create value axis break
-  const axisBreak = valueAxis.axisBreaks.create();
-  axisBreak.startValue = min_break;
-  axisBreak.endValue = max_break;
-  // axisBreak.breakSize = 0.2;
-  // fixed axis break
-  const d = (axisBreak.endValue - axisBreak.startValue) / (valueAxis.max - valueAxis.min);
-  axisBreak.breakSize = 0.05 * (1 - d) / d; // 0.05 means that the break will take 5% of the total value axis height
-  const hoverState = axisBreak.states.create("hover");
-  hoverState.properties.breakSize = 2;
-  hoverState.properties.opacity = 0.1;
-  hoverState.transitionDuration = 1500;
-  axisBreak.defaultState.transitionDuration = 1000;
-
-  this.createSeriesForConfirmedCasesCountyAndState("value"+"county_cases", "County cases ",county_cases);
-  this.createSeriesForConfirmedCasesCountyAndState("value"+"state_cases", "State cases " ,state_cases);
-
-    this.chartConfirmedCasesCountyAndState.legend = new this.amcharts.am4charts.Legend();
-    this.chartConfirmedCasesCountyAndState.legend.position = "right";
-    this.chartConfirmedCasesCountyAndState.legend.scrollable = true;
-    this.chartConfirmedCasesCountyAndState.legend.itemContainers.template.events.on("over", function(event) {
-        this.processOver(event.target.dataItem.dataContext);
-      })
-
-      this.chartConfirmedCasesCountyAndState.legend.itemContainers.template.events.on("out", function(event) {
-        this.processOut(event.target.dataItem.dataContext);
-      }) 
-
+      let max_state=0
+      let min_state=1000000000000
+      county_cases.forEach(element =>{
+        if(element.value<min_county){
+            min_county=element.value;
+        }
+        if(element.value>max_county){
+            max_county=element.value;
+        }
+      });
+  
+      state_cases.forEach(element =>{
+        if(element.value<min_state){
+            min_state=element.value;
+        }
+        if(element.value>max_state){
+            max_state=element.value;
+        }
+      });
+      let min=min_county
+      let max=max_state
+      let min_break=max_county+(0.1*max_county)
+      let max_break=min_state-(0.1*min_state)
+  
+        
+      // Create chart instance
+  
+      this.chartConfirmedCasesCountyAndState = this.amcharts.am4core.create("confirmedCasesCountyAndState", this.amcharts.am4charts.XYChart);
+  
+      // Create axes
+      const dateAxis = this.chartConfirmedCasesCountyAndState.xAxes.push(new this.amcharts.am4charts.DateAxis());
+      const valueAxis = this.chartConfirmedCasesCountyAndState.yAxes.push(new this.amcharts.am4charts.ValueAxis());
+  
+      valueAxis.min = 0;
+      valueAxis.max = max+5;
+      valueAxis.strictMinMax = true;
+      valueAxis.renderer.minGridDistance = 30;
+      // Create value axis break
+      const axisBreak = valueAxis.axisBreaks.create();
+      axisBreak.startValue = min_break;
+      axisBreak.endValue = max_break;
+      // axisBreak.breakSize = 0.2;
+      // fixed axis break
+      const d = (axisBreak.endValue - axisBreak.startValue) / (valueAxis.max - valueAxis.min);
+      axisBreak.breakSize = 0.05 * (1 - d) / d; // 0.05 means that the break will take 5% of the total value axis height
+      const hoverState = axisBreak.states.create("hover");
+      hoverState.properties.breakSize = 2;
+      hoverState.properties.opacity = 0.1;
+      hoverState.transitionDuration = 1500;
+      axisBreak.defaultState.transitionDuration = 1000;
+  
+      this.createSeriesForConfirmedCasesCountyAndState("value"+"county_cases", "County cases ",county_cases);
+      this.createSeriesForConfirmedCasesCountyAndState("value"+"state_cases", "State cases " ,state_cases);
+  
+      this.chartConfirmedCasesCountyAndState.legend = new this.amcharts.am4charts.Legend();
+      this.chartConfirmedCasesCountyAndState.legend.position = "right";
+      this.chartConfirmedCasesCountyAndState.legend.scrollable = true;
+      this.chartConfirmedCasesCountyAndState.legend.itemContainers.template.events.on("over", (event)=> {
+          this.processOver(event.target.dataItem.dataContext);
+        })
+  
+        this.chartConfirmedCasesCountyAndState.legend.itemContainers.template.events.on("out", (event)=> {
+          this.processOut(event.target.dataItem.dataContext);
+        });
+    });
   }
 
   createSeriesForConfirmedCasesCountyAndState(s, name,items) {
@@ -144,11 +154,11 @@ export class AppComponent implements AfterViewInit {
 
     const dimmed = segment.states.create("dimmed");
 
-    segment.events.on("over", function(event) {
+    segment.events.on("over", (event)=> {
       this.processOver(event.target.parent.parent.parent);
     });
 
-    segment.events.on("out", function(event) {
+    segment.events.on("out", (event)=> {
       this.processOut(event.target.parent.parent.parent);
     });
 
@@ -166,13 +176,13 @@ export class AppComponent implements AfterViewInit {
   processOver(hoveredSeries) {
     hoveredSeries.toFront();
 
-    hoveredSeries.segments.each(function(segment) {
+    hoveredSeries.segments.each((segment)=> {
       segment.setState("hover");
     })
 
-    this.chartConfirmedCasesCountyAndState.series.each(function(series) {
+    this.chartConfirmedCasesCountyAndState.series.each((series)=> {
       if (series != hoveredSeries) {
-        series['segments'].each(function(segment) {
+        series['segments'].each((segment)=> {
           segment.setState("dimmed");
         })
         series.bulletsContainer.setState("dimmed");
@@ -181,8 +191,8 @@ export class AppComponent implements AfterViewInit {
   }
 
   processOut(hoveredSeries) {
-    this.chartConfirmedCasesCountyAndState.series.each(function(series) {
-      series['segments'].each(function(segment) {
+    this.chartConfirmedCasesCountyAndState.series.each((series)=> {
+      series['segments'].each((segment)=> {
         segment.setState("default");
       })
       series.bulletsContainer.setState("default");
