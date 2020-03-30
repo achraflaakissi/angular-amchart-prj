@@ -10,7 +10,6 @@ import { AmchartsService } from './amcharts.service';
   styleUrls: [ './app.component.css' ]
 })
 export class AppComponent implements AfterViewInit {
-  name = 'Angular';
   // Amchart map
   public chart2: any;
   public chart: any;
@@ -388,7 +387,6 @@ export class AppComponent implements AfterViewInit {
 
       const polygonTemplate = this.polygonSeries.mapPolygons.template;
       polygonTemplate.tooltipText = "{name}";
-      console.log('this.chart.colors.getIndex(0)',this.chart.colors.getIndex(0))
       polygonTemplate.fill = this.chart.colors.getIndex(0);
 
       const series = this.chart.series.push(new this.amcharts.am4maps.MapImageSeries());
@@ -515,24 +513,8 @@ export class AppComponent implements AfterViewInit {
 
         }
         else {
-          let result = this.getByState(store['state']);
-          if(result){
-            this.regionalSeries[store['state']] = {
-              target: store['state'],
-              type: "state",
-              name: result.name,
-              count: store['count'],
-              stores: store['count'],
-              lat: result.lat,
-              long: result.long,
-              state: store['state'],
-              markerData: []
-            };
-            this.regionalSeries.US.markerData.push(this.regionalSeries[store['state']]);
-          }else{
-            // State not found
-            return;
-          }
+          // State not found
+          return;
         }
       }
       else {
@@ -572,10 +554,6 @@ export class AppComponent implements AfterViewInit {
 
     });
     this.regionalSeries.US.series.data = this.regionalSeries.US.markerData;
-  }
-  getByState(key){
-    const itemFinded = this.anotherData.find(element=> element.state==key);
-    return itemFinded;
   }
   // ******* End Code CodivMap ********
 }
