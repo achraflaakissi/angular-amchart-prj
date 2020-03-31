@@ -23,16 +23,13 @@ export class AmchartsService {
   public am4themes_material = am4themes_material;
   public am4themes_dark = am4themes_dark;
   public am4themes_moonrisekingdom = am4themes_moonrisekingdom;
-
-  getHeaders() {
-    return new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
-  }
+  private httpOptions = {
+    headers: new HttpHeaders({
+      "Content-Type": "application/json",
+    })
+  };
 
   getCovid19InfosByCountyId(countyId: string) {
-    return this.http.get(`https://h4nqehfq70.execute-api.us-east-1.amazonaws.com/covid19/getcovid19infosbycountyid/${countyId}`, {
-      headers: this.getHeaders()
-    });
+    return this.http.get(`https://h4nqehfq70.execute-api.us-east-1.amazonaws.com/covid19/getcovid19infosbycountyid/${countyId}`, this.httpOptions);
   }
 }
