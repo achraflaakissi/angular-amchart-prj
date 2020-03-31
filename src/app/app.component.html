@@ -1,6 +1,6 @@
 <div class="btn-container">
-  <button id="btn-1" [ngClass]="{active: nameOfColumnUsed === 'deathLastDay'}" (click)="changeDisplay('deathLastDay')">Deaths</button>
-  <button id="btn-2" [ngClass]="{active: nameOfColumnUsed === 'confirmedLastDay'}" (click)="changeDisplay('confirmedLastDay')">Confirmed Cases</button>
+  <button id="btn-1" [ngClass]="{active: nameOfColumnUsed === 'death'}" (click)="changeDisplay('death')">Deaths</button>
+  <button id="btn-2" [ngClass]="{active: nameOfColumnUsed === 'confirmed'}" (click)="changeDisplay('confirmed')">Confirmed Cases</button>
   <!--<button id="btn-3" onclick="changeDisplay('recoveredLastDay',3)">Recovered</button>-->
 </div>
 <div id="chartdiv"></div>

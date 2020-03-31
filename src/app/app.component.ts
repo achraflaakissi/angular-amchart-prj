@@ -16,7 +16,7 @@ export class AppComponent implements AfterViewInit {
   public chartConfirmedCasesCountyAndState: any;
   public dataCovid19InfosByCountyId:any;
   // Choose the name of the variable to display : deaths, confirmedCases, recovered
-  public nameOfColumnUsed = "confirmedLastDay";
+  public nameOfColumnUsed = "death";
   //config of array content
   public configArrayNames = {
       state: "stateAbr",
