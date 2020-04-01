@@ -342,6 +342,7 @@ export class AppComponent implements AfterViewInit {
   
   // ******* End Code CountyStateUsa ********
   // ------ CodivMap Code Start -------
+  
   am4coreOperations() {
     this.regionalSeries={};
       // Themes begin
@@ -379,195 +380,194 @@ export class AppComponent implements AfterViewInit {
       this.polygonSeries = this.chart.series.push(new this.amcharts.am4maps.MapPolygonSeries());
       this.polygonSeries.useGeodata = true;
       this.polygonSeries.calculateVisualCenter = true;
-      const that = this;
 
       // Configure series
       let polygonTemplate = this.polygonSeries.mapPolygons.template;
       polygonTemplate.tooltipText = "{name}";
       polygonTemplate.fill = this.amcharts.am4core.color("#67b7dc");
-      this.chart.events.on("ready", that.loadStores.bind(that));      
+      const createSeries = (heatfield) => {
+
+        const polygonTemplate = this.polygonSeries.mapPolygons.template;
+        polygonTemplate.tooltipText = "{name}";
+        polygonTemplate.fill = this.chart.colors.getIndex(0);
+  
+        const series = this.chart.series.push(new this.amcharts.am4maps.MapImageSeries());
+        series.dataFields.value = heatfield;
+  
+        const template = series.mapImages.template;
+        template.verticalCenter = "middle";
+        template.horizontalCenter = "middle";
+        template.propertyFields.latitude = "lat";
+        template.propertyFields.longitude = "long";
+        //template.tooltipText = "{name}:\n[bold]{stores} "+nameOfColumnUsed+"[/]";
+  
+        if (this.nameOfColumnUsed == 'death') {
+            template.tooltipText = "Deaths in {name}: [bold]{stores} ";
+        }
+        if (this.nameOfColumnUsed == 'confirmed') {
+            template.tooltipText = "Confirmed cases in {name}: [bold]{stores} ";
+        }
+  
+  
+        //template.tooltipText = "{name}:\n[bold]{stores} "+nameOfColumnUsed+"[/]";
+  
+        const circle: any = template.createChild(this.amcharts.am4core.Circle);
+        circle.radius = 10;
+        circle.fillOpacity = 0.7;
+        circle.verticalCenter = "middle";
+        circle.horizontalCenter = "middle";
+        circle.nonScaling = true;
+  
+        const label: any = template.createChild(this.amcharts.am4core.Label);
+        label.text = "{stores}";
+        label.fill = this.amcharts.am4core.color("#fff");
+        label.verticalCenter = "middle";
+        label.horizontalCenter = "middle";
+        label.nonScaling = true;
+  
+        const heat = series.heatRules.push({
+            target: circle,
+            property: "radius",
+            min: 10,
+            max: 30
+        });
+  
+        // Set up drill-down
+        series.mapImages.template.events.on("hit", (ev) => {
+  
+            // Determine what we've clicked on
+            const data: any = ev.target.dataItem.dataContext;
+  
+            // No id? Individual store - nothing to drill down to further
+            if (!data.target) {
+                return;
+            }
+  
+            // Create actual series if it hasn't been yet created
+            if (!this.regionalSeries[data.target].series) {
+                this.regionalSeries[data.target].series = this.createSeries("count");
+                this.regionalSeries[data.target].series.data = data.markerData;
+            }
+  
+            // Hide current series
+            if (this.currentSeries) {
+                this.currentSeries.hide();
+            }
+  
+            // Control zoom
+            if (data.type == "state") {
+              const statePolygon = this.polygonSeries.getPolygonById("US-" + data.state);
+                this.chart.zoomToMapObject(statePolygon);
+            }
+            else if (data.type == "city") {
+                this.chart.zoomToGeoPoint({
+                    latitude: data.lat,
+                    longitude: data.long
+                }, 64, true);
+            }
+            this.zoomOut.show();
+  
+            // Show new targert series
+            this.currentSeries = this.regionalSeries[data.target].series;
+            this.currentSeries.show();
+        });
+  
+        return series;
+    }
+      const setupStores = (data) => {  
+        // Init country-level series
+        this.regionalSeries.US = {
+          markerData: [],
+          series: createSeries("stores")
+        };
+        // Set current series
+        this.currentSeries = this.regionalSeries.US.series;
+        // Process data
+        this.amcharts.am4core.array.each(data, (store)=> {
+          // Get store data
+          store = {
+            state: store[this.configArrayNames.state],
+            long: this.amcharts.am4core.type.toNumber(store[this.configArrayNames.longitude]),
+            lat: this.amcharts.am4core.type.toNumber(store[this.configArrayNames.latitude]),
+            location: store[this.configArrayNames[this.configArrayNames.city]],
+            city: store[this.configArrayNames.city],
+            count: this.amcharts.am4core.type.toNumber(store[this.configArrayNames.count])
+          };
+    
+          // Process state-level data
+          if (this.regionalSeries[store['state']] == undefined) {
+            const statePolygon = this.polygonSeries.getPolygonById("US-" + store['state']);
+            if (statePolygon) {
+              // Add state data
+              this.regionalSeries[store['state']] = {
+                target: store['state'],
+                type: "state",
+                name: statePolygon.dataItem.dataContext.name,
+                count: store['count'],
+                stores: store['count'],
+                lat: statePolygon.visualLatitude,
+                long: statePolygon.visualLongitude,
+                state: store['state'],
+                markerData: []
+              };
+              this.regionalSeries.US.markerData.push(this.regionalSeries[store['state']]);
+    
+            }
+            else {
+              // State not found
+              return;
+            }
+          }
+          else {
+            this.regionalSeries[store['state']].stores++;
+            this.regionalSeries[store['state']].count += store['count'];
+          }
+    
+          // Process city-level data
+          if (this.regionalSeries[store['city']] == undefined) {
+            this.regionalSeries[store['city']] = {
+              target: store['city'],
+              type: "city",
+              name: store['city'],
+              count: store['count'],
+              stores: store['count'],
+              lat: store['lat'],
+              long: store['long'],
+              state: store['state'],
+              markerData: []
+            };
+            this.regionalSeries[store['state']].markerData.push(this.regionalSeries[store['city']]);
+          }
+          else {
+            this.regionalSeries[store['city']].stores++;
+            this.regionalSeries[store['city']].count += store['count'];
+          }
+    
+          // Process individual store
+          this.regionalSeries[store['city']].markerData.push({
+            name: store['location'],
+            count: store['count'],
+            stores: store['count'],
+            lat: store['lat'],
+            long: store['long'],
+            state: store['state']
+          });
+    
+        });
+        this.regionalSeries.US.series.data = this.regionalSeries.US.markerData;
+      }
+      const loadStores = () => {
+        setupStores(this.dataMap);
+      }
+      this.chart.events.on("ready", loadStores);      
       return
   }
-  loadStores() {
-    this.setupStores(this.dataMap);
-  }
+  
   changeDisplay(type) {
       this.nameOfColumnUsed = type;
       this.configArrayNames.count = this.nameOfColumnUsed;
       this.am4coreOperations();
   }
-
-  createSeries(heatfield) {
-
-      const polygonTemplate = this.polygonSeries.mapPolygons.template;
-      polygonTemplate.tooltipText = "{name}";
-      polygonTemplate.fill = this.chart.colors.getIndex(0);
-
-      const series = this.chart.series.push(new this.amcharts.am4maps.MapImageSeries());
-      series.dataFields.value = heatfield;
-
-      const template = series.mapImages.template;
-      template.verticalCenter = "middle";
-      template.horizontalCenter = "middle";
-      template.propertyFields.latitude = "lat";
-      template.propertyFields.longitude = "long";
-      //template.tooltipText = "{name}:\n[bold]{stores} "+nameOfColumnUsed+"[/]";
-
-      if (this.nameOfColumnUsed == 'death') {
-          template.tooltipText = "Deaths in {name}: [bold]{stores} ";
-      }
-      if (this.nameOfColumnUsed == 'confirmed') {
-          template.tooltipText = "Confirmed cases in {name}: [bold]{stores} ";
-      }
-
-
-      //template.tooltipText = "{name}:\n[bold]{stores} "+nameOfColumnUsed+"[/]";
-
-      const circle: any = template.createChild(this.amcharts.am4core.Circle);
-      circle.radius = 10;
-      circle.fillOpacity = 0.7;
-      circle.verticalCenter = "middle";
-      circle.horizontalCenter = "middle";
-      circle.nonScaling = true;
-
-      const label: any = template.createChild(this.amcharts.am4core.Label);
-      label.text = "{stores}";
-      label.fill = this.amcharts.am4core.color("#fff");
-      label.verticalCenter = "middle";
-      label.horizontalCenter = "middle";
-      label.nonScaling = true;
-
-      const heat = series.heatRules.push({
-          target: circle,
-          property: "radius",
-          min: 10,
-          max: 30
-      });
-
-      // Set up drill-down
-      series.mapImages.template.events.on("hit", (ev) => {
-
-          // Determine what we've clicked on
-          const data: any = ev.target.dataItem.dataContext;
-
-          // No id? Individual store - nothing to drill down to further
-          if (!data.target) {
-              return;
-          }
-
-          // Create actual series if it hasn't been yet created
-          if (!this.regionalSeries[data.target].series) {
-              this.regionalSeries[data.target].series = this.createSeries("count");
-              this.regionalSeries[data.target].series.data = data.markerData;
-          }
-
-          // Hide current series
-          if (this.currentSeries) {
-              this.currentSeries.hide();
-          }
-
-          // Control zoom
-          if (data.type == "state") {
-            const statePolygon = this.polygonSeries.getPolygonById("US-" + data.state);
-              this.chart.zoomToMapObject(statePolygon);
-          }
-          else if (data.type == "city") {
-              this.chart.zoomToGeoPoint({
-                  latitude: data.lat,
-                  longitude: data.long
-              }, 64, true);
-          }
-          this.zoomOut.show();
-
-          // Show new targert series
-          this.currentSeries = this.regionalSeries[data.target].series;
-          this.currentSeries.show();
-      });
-
-      return series;
-  }
   
-  setupStores(data) {  
-    // Init country-level series
-    this.regionalSeries.US = {
-      markerData: [],
-      series: this.createSeries("stores")
-    };
-    // Set current series
-    this.currentSeries = this.regionalSeries.US.series;
-    // Process data
-    this.amcharts.am4core.array.each(data, (store)=> {
-      // Get store data
-      store = {
-        state: store[this.configArrayNames.state],
-        long: this.amcharts.am4core.type.toNumber(store[this.configArrayNames.longitude]),
-        lat: this.amcharts.am4core.type.toNumber(store[this.configArrayNames.latitude]),
-        location: store[this.configArrayNames[this.configArrayNames.city]],
-        city: store[this.configArrayNames.city],
-        count: this.amcharts.am4core.type.toNumber(store[this.configArrayNames.count])
-      };
-
-      // Process state-level data
-      if (this.regionalSeries[store['state']] == undefined) {
-        const statePolygon = this.polygonSeries.getPolygonById("US-" + store['state']);
-        if (statePolygon) {
-          // Add state data
-          this.regionalSeries[store['state']] = {
-            target: store['state'],
-            type: "state",
-            name: statePolygon.dataItem.dataContext.name,
-            count: store['count'],
-            stores: store['count'],
-            lat: statePolygon.visualLatitude,
-            long: statePolygon.visualLongitude,
-            state: store['state'],
-            markerData: []
-          };
-          this.regionalSeries.US.markerData.push(this.regionalSeries[store['state']]);
-
-        }
-        else {
-          // State not found
-          return;
-        }
-      }
-      else {
-        this.regionalSeries[store['state']].stores++;
-        this.regionalSeries[store['state']].count += store['count'];
-      }
-
-      // Process city-level data
-      if (this.regionalSeries[store['city']] == undefined) {
-        this.regionalSeries[store['city']] = {
-          target: store['city'],
-          type: "city",
-          name: store['city'],
-          count: store['count'],
-          stores: store['count'],
-          lat: store['lat'],
-          long: store['long'],
-          state: store['state'],
-          markerData: []
-        };
-        this.regionalSeries[store['state']].markerData.push(this.regionalSeries[store['city']]);
-      }
-      else {
-        this.regionalSeries[store['city']].stores++;
-        this.regionalSeries[store['city']].count += store['count'];
-      }
-
-      // Process individual store
-      this.regionalSeries[store['city']].markerData.push({
-        name: store['location'],
-        count: store['count'],
-        stores: store['count'],
-        lat: store['lat'],
-        long: store['long'],
-        state: store['state']
-      });
-
-    });
-    this.regionalSeries.US.series.data = this.regionalSeries.US.markerData;
-  }
   // ******* End Code CodivMap ********
 }
