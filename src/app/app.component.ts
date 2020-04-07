@@ -1,4 +1,4 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit,OnInit } from '@angular/core';
 import am4geodata_usaLow from "@amcharts/amcharts4-geodata/usaLow";
 import am4themes_animated from "@amcharts/amcharts4/themes/animated";
 import am4themes_moonrisekingdom from '@amcharts/amcharts4/themes/moonrisekingdom';
@@ -9,7 +9,7 @@ import { AmchartsService } from './amcharts.service';
   templateUrl: './app.component.html',
   styleUrls: [ './app.component.css' ]
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent implements AfterViewInit,OnInit {
   // Amchart map
   public chart: any;
   public chartCovidCountyStateUsa: any;
@@ -33,9 +33,13 @@ export class AppComponent implements AfterViewInit {
   public xAxis:any;
   zoomOut: any;
   polygonSeries: any;
+  innerWidth=0;
 
 
   constructor(private amcharts: AmchartsService) {
+  }
+  ngOnInit() {
+    this.innerWidth = window.innerWidth;
   }
   ngAfterViewInit() {
     this.amcharts.getCovid19InfosByCountyId("36061").subscribe(data=>{
@@ -125,9 +129,32 @@ export class AppComponent implements AfterViewInit {
   
       this.createSeriesForConfirmedCasesCountyAndState("value"+"county_cases", "County cases ",county_cases);
       this.createSeriesForConfirmedCasesCountyAndState("value"+"state_cases", "State cases " ,state_cases);
-  
+
+        /**
+       * ========================================================
+       * Enabling responsive features
+       * ========================================================
+       */
+
+      this.chartConfirmedCasesCountyAndState.responsive.enabled = true;
+
+      this.chartConfirmedCasesCountyAndState.responsive.rules.push({
+        relevant: function(target) {
+        if (target.pixelWidth <= 400) {
+          return true;
+        }
+          return false;
+        },
+        state: function(target, stateId) {
+          return;
+        }
+      });
       this.chartConfirmedCasesCountyAndState.legend = new this.amcharts.am4charts.Legend();
-      this.chartConfirmedCasesCountyAndState.legend.position = "right";
+      if(this.innerWidth<=600){
+        this.chartConfirmedCasesCountyAndState.legend.position = "bottom";
+      }else{
+        this.chartConfirmedCasesCountyAndState.legend.position = "right";
+      }
       this.chartConfirmedCasesCountyAndState.legend.scrollable = true;
       this.chartConfirmedCasesCountyAndState.legend.itemContainers.template.events.on("over", (event)=> {
           this.processOver(event.target.dataItem.dataContext);
