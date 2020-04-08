@@ -61,43 +61,30 @@ export class AppComponent implements AfterViewInit,OnInit {
         culDate = new Date();
         culDate.setDate(startDate.getDate() -(10-(i+1)));
         state_cases.push({'date': culDate,'value':this.dataCovid19InfosByCountyId['state'].confirmed[i]});
-      }
-      for(let i=0;i<this.dataCovid19InfosByCountyId['county'].confirmed.length;i++){
-        culDate = new Date();
-        culDate.setDate(startDate.getDate() -(10-(i+1)));
         sommeCountyConfirmedCases+=this.dataCovid19InfosByCountyId['state'].confirmed[i];
         county_cases.push({'date':culDate,'value':this.dataCovid19InfosByCountyId['county'].confirmed[i]});
       }
-      console.log("state_cases ==>",state_cases);
-      console.log("county_cases ==>",county_cases);
     
       this.amcharts.am4core.useTheme(am4themes_moonrisekingdom);
       this.amcharts.am4core.useTheme(am4themes_animated);
-      let max_county =0; 
-      let min_county =1000000000000;
-  
-      
-      let max_state=0
-      let min_state=1000000000000
-      county_cases.forEach(element =>{
-        if(element.value<min_county){
-            min_county=element.value;
+
+      let val_county={max:0,min:1000000000000}
+      let val_state={max:0,min:1000000000000}
+
+      for(let i=0;i<county_cases.length;i++){
+        if(county_cases[i].value<val_county.min){
+            val_county.min=county_cases[i].value;
         }
-        if(element.value>max_county){
-            max_county=element.value;
+        if(county_cases[i].value>val_county.max){
+            val_county.max=county_cases[i].value;
         }
-      });
-  
-      state_cases.forEach(element =>{
-        if(element.value<min_state){
-            min_state=element.value;
+        if(state_cases[i].value<val_state.min){
+            val_state.min=state_cases[i].value;
         }
-        if(element.value>max_state){
-            max_state=element.value;
+        if(state_cases[i].value>val_state.max){
+            val_state.max=state_cases[i].value;
         }
-      });
-      let min=min_county
-      let max=max_state
+      }
       let min_break=this.dataCovid19InfosByCountyId['state'].confirmedLastDay/10;
       let max_break=sommeCountyConfirmedCases/10;
         
@@ -108,16 +95,15 @@ export class AppComponent implements AfterViewInit,OnInit {
       // Create axes
       const dateAxis = this.chartConfirmedCasesCountyAndState.xAxes.push(new this.amcharts.am4charts.DateAxis());
       const valueAxis = this.chartConfirmedCasesCountyAndState.yAxes.push(new this.amcharts.am4charts.ValueAxis());
-  
       valueAxis.min = 0;
-      valueAxis.max = max+5;
+      valueAxis.max = val_state.max+5;
       valueAxis.strictMinMax = true;
       valueAxis.renderer.minGridDistance = 30;
+
       // Create value axis break
       const axisBreak = valueAxis.axisBreaks.create();
       axisBreak.startValue = min_break;
       axisBreak.endValue = max_break;
-      // axisBreak.breakSize = 0.2;
       // fixed axis break
       const d = (axisBreak.endValue - axisBreak.startValue) / (valueAxis.max - valueAxis.min);
       axisBreak.breakSize = 0.05 * (1 - d) / d; // 0.05 means that the break will take 5% of the total value axis height
@@ -137,7 +123,6 @@ export class AppComponent implements AfterViewInit,OnInit {
        */
 
       this.chartConfirmedCasesCountyAndState.responsive.enabled = true;
-
       this.chartConfirmedCasesCountyAndState.responsive.rules.push({
         relevant: function(target) {
         if (target.pixelWidth <= 400) {
@@ -170,10 +155,7 @@ export class AppComponent implements AfterViewInit,OnInit {
     series.dataFields.valueY = "value" + s;
     series.dataFields.dateX = "date";
     let col="#e60000";
-    if(s=="valuecounty_cases")
-    {
-      col =  "#00ff7c";
-    }
+    if(s=="valuecounty_cases") col =  "#00ff7c";
     series.stroke =  this.amcharts.am4core.color(col);
     series.name = name;
 
@@ -312,28 +294,9 @@ export class AppComponent implements AfterViewInit,OnInit {
   }
 
   createSeriesForCovidCountyStateUsa(value, name) {
-    const series = this.chartCovidCountyStateUsa.series.push(new this.amcharts.am4charts.ColumnSeries())
-    series.dataFields.valueY = value
-    series.dataFields.categoryX = 'category'
-    series.name = name
-    const that = this;
-    series.events.on("hidden", that.arrangeColumnsForCovidCountyStateUsa.bind(that));
-    series.events.on("shown", that.arrangeColumnsForCovidCountyStateUsa.bind(that));
-    series.columns.template.tooltipText = "[bold][/]\n[font-size:14px]{valueY}";
-    const bullet = series.bullets.push(new this.amcharts.am4charts.LabelBullet())
-    bullet.interactionsEnabled = false
-    bullet.dy = 30;
-    bullet.label.text = '{valueY}'
-    bullet.label.fill = this.amcharts.am4core.color('#ffffff')
-    
-    return series;
-  }
-  
-  arrangeColumnsForCovidCountyStateUsa() {
-  
-    const series = this.chartCovidCountyStateUsa.series.getIndex(0);
-
-    const w = 1 - this.xAxis.renderer.cellStartLocation - (1 - this.xAxis.renderer.cellEndLocation);
+    const arrangeColumnsForCovidCountyStateUsa = () => {
+      const series = this.chartCovidCountyStateUsa.series.getIndex(0);
+      const w = 1 - this.xAxis.renderer.cellStartLocation - (1 - this.xAxis.renderer.cellEndLocation);
       if (series.dataItems.length > 1) {
         const x0 = this.xAxis.getX(series.dataItems.getIndex(0), "categoryX");
         const x1 = this.xAxis.getX(series.dataItems.getIndex(1), "categoryX");
@@ -365,7 +328,24 @@ export class AppComponent implements AfterViewInit,OnInit {
               })
           }
       }
+    }
+    const series = this.chartCovidCountyStateUsa.series.push(new this.amcharts.am4charts.ColumnSeries())
+    series.dataFields.valueY = value
+    series.dataFields.categoryX = 'category'
+    series.name = name
+    series.events.on("hidden", arrangeColumnsForCovidCountyStateUsa);
+    series.events.on("shown", arrangeColumnsForCovidCountyStateUsa);
+    series.columns.template.tooltipText = "[bold][/]\n[font-size:14px]{valueY}";
+    const bullet = series.bullets.push(new this.amcharts.am4charts.LabelBullet())
+    bullet.interactionsEnabled = false
+    bullet.dy = 30;
+    bullet.label.text = '{valueY}'
+    bullet.label.fill = this.amcharts.am4core.color('#ffffff')
+    
+    return series;
   }
+  
+  
   
   // ******* End Code CountyStateUsa ********
   // ------ CodivMap Code Start -------
@@ -472,7 +452,7 @@ export class AppComponent implements AfterViewInit,OnInit {
   
             // Create actual series if it hasn't been yet created
             if (!this.regionalSeries[data.target].series) {
-                this.regionalSeries[data.target].series = this.createSeries("count");
+                this.regionalSeries[data.target].series = createSeries("count");
                 this.regionalSeries[data.target].series.data = data.markerData;
             }
   
