@@ -217,8 +217,7 @@ export class AppComponent implements AfterViewInit,OnInit {
     try{
       this.amcharts.am4core.useTheme(am4themes_moonrisekingdom);
       this.amcharts.am4core.useTheme(am4themes_animated);
-      let max =0; 
-      let min =1000000000000; 
+      let max =0;
       this.dataMap.forEach(element => {
         this.usaConfirmedCases=this.usaConfirmedCases+element.confirmed;
         this.usaDeathCases=this.usaDeathCases+element.death;
@@ -243,9 +242,6 @@ export class AppComponent implements AfterViewInit,OnInit {
       dataItems.forEach(element =>{
         if(element.second>max){
             max=element.second;
-        }
-        if(element.first<min){
-            min=element.first;
         }
       });
       this.chartCovidCountyStateUsa=this.amcharts.am4core.create('covidCountyStateUsa', this.amcharts.am4charts.XYChart)
